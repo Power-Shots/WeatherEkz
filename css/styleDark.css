@@ -34,7 +34,7 @@ span {
 }
 
 body {
-  background-color: #bdbdbd;
+  background-color: #242424;
 }
 
 .container {
@@ -44,7 +44,7 @@ body {
 }
 
 header {
-  background-color: #eaeaea;
+  background-color: #282828;
   padding: 25px 0;
 }
 header nav {
@@ -56,7 +56,7 @@ header nav a {
   text-decoration: none;
 }
 header nav a h1 {
-  color: #64b7ff;
+  color: #f96c14;
 }
 header nav .search-city-block {
   display: flex;
@@ -76,14 +76,14 @@ header nav .search-city-block .search-btn {
   border: 1px solid lightgrey;
   margin-left: 10px;
   background-color: lightgrey;
-  color: #000000;
+  color: #f2f2f2;
 }
 header nav .search-city-block .search-btn:hover {
-  border: 1px solid #64b7ff;
+  border: 1px solid #f96c14;
 }
 
 .wrap {
-  background-color: #111111;
+  background-color: #464646;
 }
 .wrap .switch-bar {
   display: flex;
@@ -98,18 +98,18 @@ header nav .search-city-block .search-btn:hover {
   align-items: center;
   width: 100px;
   padding: 10px 5px;
-  border: 2px solid #111111;
+  border: 2px solid #464646;
   border-top: none;
   font-size: 18px;
   text-decoration: none;
   color: #f2f2f2;
 }
 .wrap .switch-bar .switch-block .switch-day:hover {
-  color: #64b7ff;
+  color: #f96c14;
 }
 .wrap .switch-bar .switch-block .switch-day-active {
   border: 2px solid #636363;
-  border-bottom: 2px solid #64b7ff;
+  border-bottom: 2px solid #f96c14;
   border-top: none;
 }
 .wrap .switch-bar .switch-theam {
@@ -121,34 +121,34 @@ header nav .search-city-block .search-btn:hover {
   align-items: center;
   width: 120px;
   padding: 10px 5px;
-  border: 2px solid #111111;
+  border: 2px solid #464646;
   border-top: none;
   font-size: 18px;
   text-decoration: none;
   color: #f2f2f2;
 }
 .wrap .switch-bar .switch-theam .theam:hover {
-  color: #64b7ff;
+  color: #f96c14;
 }
 .wrap .switch-bar .switch-theam .theam-active {
   border: 2px solid #636363;
-  border-bottom: 2px solid #64b7ff;
+  border-bottom: 2px solid #f96c14;
   border-top: none;
 }
 
 .weather-block .current-weather {
-  background-color: #e3e3e3;
+  background-color: #605f5f;
   margin-top: 25px;
   padding: 20px;
 }
 .weather-block .current-weather p {
-  color: #000000;
+  color: #f2f2f2;
 }
 .weather-block .current-weather h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #64b7ff;
+  color: #f96c14;
 }
 .weather-block .current-weather .flex {
   display: flex;
@@ -168,15 +168,15 @@ header nav .search-city-block .search-btn:hover {
   width: 25%;
 }
 .weather-block .hourly-weather {
-  background-color: #e3e3e3;
+  background-color: #605f5f;
   margin: 25px 0;
   padding: 20px;
 }
 .weather-block .hourly-weather h2 {
-  color: #64b7ff;
+  color: #f96c14;
 }
 .weather-block .hourly-weather p {
-  color: #000000;
+  color: #f2f2f2;
 }
 .weather-block .hourly-weather .flex {
   display: flex;
@@ -207,13 +207,13 @@ header nav .search-city-block .search-btn:hover {
   color: #2d2d2d;
 }
 .weather-block .citys-block {
-  background-color: #e3e3e3;
+  background-color: #605f5f;
   margin-bottom: 25px;
   padding: 20px;
-  color: #000000;
+  color: #f2f2f2;
 }
 .weather-block .citys-block h2 {
-  color: #64b7ff;
+  color: #f96c14;
 }
 .weather-block .citys-block .grid {
   display: grid;
@@ -222,7 +222,7 @@ header nav .search-city-block .search-btn:hover {
   padding-top: 20px;
 }
 .weather-block .citys-block .grid .item {
-  background-color: #bdbdbd;
+  background-color: #242424;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -231,7 +231,7 @@ header nav .search-city-block .search-btn:hover {
   cursor: pointer;
 }
 .weather-block .citys-block .grid .item:hover {
-  background-color: #fafafa;
+  background-color: #343434;
 }
 .weather-block .citys-block .grid .item .city-weather {
   display: flex;
@@ -245,7 +245,7 @@ header nav .search-city-block .search-btn:hover {
 
 footer {
   padding: 20px 0;
-  background-color: #111111;
+  background-color: #464646;
   color: #f2f2f2;
   text-align: center;
 }

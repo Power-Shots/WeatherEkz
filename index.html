@@ -5,8 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
     <link rel="stylesheet" href="css/normalize.css" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css"  id="style"/>
   </head>
   <body>
     <header>
@@ -26,13 +27,22 @@
     <main>
       <div class="wrap">
         <div class="container">
-          <div class="switch-block" id="switchBlock">
-            <a href="" class="switch-day switch-day-active" data-countDays="1">Today</a>
-            <a href="" class="switch-day" data-countDays="5">5 Days</a>
+          <div class="switch-bar">
+            <div class="switch-block" id="switchBlock">
+              <a href="" class="switch-day switch-day-active" data-countDays="1">Today</a>
+              <a href="" class="switch-day" data-countDays="5">5 Days</a>
+            </div>
+            <div class="switch-theam" id="switchTheam">
+                <a href="" class="theam" data-theam="day" id="dayTheam">Day theam</a>
+                <a href="" class="theam"  data-theam="night" id="nigthTheam">Night theam</a>
+            </div>
           </div>
         </div>
       </div>
     </main>
+    <footer>
+      <p>Mede with love by Alexsey Zhidkov</p>
+    </footer>
     <script src="js/script.js"></script>
   </body>
 </html>
