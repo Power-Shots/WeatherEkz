@@ -28,7 +28,14 @@ const dateOptions = {
     },
     time: {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
+    },
+    dayOfWeek: {
+        weekday: 'long',
+    },
+    monthDay: {
+        month: 'short',
+        day: '2-digit',
     }
 }
 
@@ -45,6 +52,12 @@ const fetchAsync = async (url) => {
 function transormUNIX(date, option="add"){
     if(option ==='add'){
         return new Date(date*1000-10800000).toLocaleString('ru', dateOptions.time);
+    }
+    else if(option === "weekday"){
+        return new Date(date*1000).toLocaleString('en', dateOptions.dayOfWeek);
+    }
+    else if(option === "month-day"){
+        return new Date(date*1000).toLocaleString('en', dateOptions.monthDay);
     }
     else{
         return new Date(date*1000).toLocaleString('ru', dateOptions.time);
@@ -80,7 +93,6 @@ function transformDegreesToCardinalPoints(deg){
 
 function getLocation(e){
     let theam = JSON.parse(localStorage.getItem('theam'));
-    console.log(theam);
     if(theam){
         main.querySelector(`#${theam.selectBtn}`).classList.add('theam-active');
         style.href = theam.href;
@@ -147,6 +159,11 @@ function switchTheam(e){
     }
 }
 
+function getPressKey(e){
+    if(e.code === 'Enter'){
+        getCity(e);
+    }
+}
 
 function changeCity(e){
     let myTarget = e.target.closest('.item');
@@ -156,10 +173,77 @@ function changeCity(e){
     }
 }
 
-function getPressKey(e){
-    if(e.code === 'Enter'){
-        getCity(e);
+function createError(){
+    console.log(1)
+    let errorBlock = document.createElement('div');
+    let errorImg = document.createElement('img');
+    if(main.querySelector('#weather')){
+        main.querySelector('#weather').remove()
     }
+    errorBlock.classList.add('error-block');
+    errorImg.src = 'img/404_error.png';
+    errorImg.classList.add('error-img');
+    errorBlock.innerHTML = `
+    <div class="container block">
+        <div>
+            ${errorImg.outerHTML}
+        </div>
+        <p><span>${searchCityInput.value}</span> not found</p>
+    </div>
+    `
+    console.log(errorBlock)
+    main.append(errorBlock)
+}
+
+function createHourlyWeather(data, index){
+    console.log(data);
+    console.log(index)
+    index = +index
+    let hourlyWeather = main.querySelector('.hourly-weather');
+    let hoursContent = '';
+
+    for(let i= index;i<=data.list.length; i++){
+        // console.log(i)
+        if(i === index){
+            hoursContent += `
+                    <div class="item info">
+                        <p class="time"><span>${transormUNIX(data.list[8].dt, 'weekday')}</span></p>
+                        <div class="hour-weather-icon"></div>
+                        <p>Forecast</p>
+                        <p>Temp (&#176;C)</p>
+                        <p>RealFeel</p>
+                        <p>Wind (km/h)</p>
+                    </div>
+            `;
+        }
+        else if(i> index){
+            // console.log(i)
+            hoursContent += `
+                <div class="item">
+                    <p class="time">${transormUNIX(data.list[i].dt)}</p>
+                    <div class="hour-weather-icon">
+                        <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+                    </div>
+                    <p>${data.list[i].weather[0].main}</p>
+                    <p>${Math.round(data.list[i].main.temp)}&#176;</p>
+                    <p>${Math.round(data.list[i].main['feels_like'])}&#176;</p>
+                    <p>${Math.round(data.list[i].wind.speed)} ${transformDegreesToCardinalPoints(data.list[i].wind.deg)}</p>  
+                </div>
+            `;
+        };
+        if(i === index+5){
+            console.log('dsrwsaerwsAEAEWESERASWWSRESRTERTDGFGCGCHFFGFGCRFYTTY')
+            hourlyWeather.innerHTML = `
+                <h2>Hourly</h2>
+                <div class="flex">
+                    ${hoursContent}
+                </div>
+                `;
+            return '';
+        }
+    };
+
+    // console.log(fiveHours)
 }
 
 function showCityInCircle(data){
@@ -219,26 +303,120 @@ function showCityInCircle(data){
     weatherBlock.append(citysBlock);
 }
 
+function checkTarget(e,data){
+    console.log(data)
+    if(e){
+        myTarget = e.target.closest('.item');
+        if(myTarget){
+            let index = myTarget.getAttribute('data-index');
+            // console.log(index)
+            createHourlyWeather(data, index)
 
-function showTodayWeather(data){
-    // console.log(data);
-    coords = [data.city.coord.lat, data.city.coord.lon];
-    searchCityInput.value = `${data.city.name}, ${data.city.country}`
+        }
+    }
+}
+
+function showFiveDayWeather(data){
+    console.log(data);
+    searchCityInput.value = `${data.city.name}, ${data.city.country}`;
     let weatherBlock = main.querySelector('#weather');
-    let currentWeatherBlock = main.querySelector('.current-weather');
-    let hourlyWeather = main.querySelector('.hourly-weather')
-    let todayDate = new Date().toLocaleDateString('ru', dateOptions.currentDate);
+    let weekdayBlock = main.querySelector('.weekday-block');
+    let hourlyWeather = main.querySelector('.hourly-weather');
+    let todayWeatherBlock = main.querySelector('.today-weather');
+    let fiveDayWeather = main.querySelector('.five-day-weather');
+
+    if(todayWeatherBlock){
+        todayWeatherBlock.remove();
+    }
+
     if(!weatherBlock){
         weatherBlock = document.createElement('div');
         weatherBlock.id = 'weather';
         weatherBlock.classList.add('weather-block');
+        main.append(weatherBlock);
+    }
 
+    if(!fiveDayWeather){
+        weekdayBlock = document.createElement('section');
+        weekdayBlock.classList.add('weekday-block');
+        
+        hourlyWeather = document.createElement('section');
+        hourlyWeather.classList.add('hourly-weather');   
+    }
+
+    let weekdayContent = '';
+    for(let i=0; i<data.list.length; i+=8){
+        if(i==0){
+            weekdayContent += `
+            <div class="item active-day" data-index="${i}">
+                <p class="weekday">${transormUNIX(data.list[i].dt, 'weekday')}</p>
+                <p>${transormUNIX(data.list[i].dt, 'month-day')}</p>
+                <div class="icon-block">
+                    <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+                </div>
+                <p class="temp">${Math.round(data.list[i].main.temp)}&#176;C</p>
+                <p class="description">${data.list[i].weather[0].description}</p>
+            </div>`;
+        }
+        else{
+            weekdayContent += `
+            <div class="item" data-index="${i}">
+                <p class="weekday">${transormUNIX(data.list[i].dt, 'weekday')}</p>
+                <p>${transormUNIX(data.list[i].dt, 'month-day')}</p>
+                <div class="icon-block">
+                    <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+                </div>
+                <p class="temp">${Math.round(data.list[i].main.temp)}&#176;C</p>
+                <p class="description">${data.list[i].weather[0].description}</p>
+            </div>`;
+        }
+    };
+    weekdayBlock.innerHTML = weekdayContent;
+    
+
+
+
+console.log(hourlyWeather)
+
+
+    weatherBlock.innerHTML = `
+        <div class="container five-day-weather">
+            ${weekdayBlock.outerHTML}
+            ${hourlyWeather.outerHTML}
+        </div>
+    `;
+    createHourlyWeather(data, 0);
+
+    weekdayBlock = main.querySelector('.weekday-block');
+    weekdayBlock.addEventListener('click', (e)=>{
+        checkTarget(e,data);
+    });
+    
+}
+
+function showTodayWeather(data){
+    coords = [data.city.coord.lat, data.city.coord.lon];
+    searchCityInput.value = `${data.city.name}, ${data.city.country}`
+    let weatherBlock = main.querySelector('#weather');
+    let currentWeatherBlock = main.querySelector('.current-weather');
+    let hourlyWeather = main.querySelector('.hourly-weather');
+    let todayDate = new Date().toLocaleDateString('ru', dateOptions.currentDate);
+    let fiveDayWeather = main.querySelector('.five-day-weather');
+    let todayWeatherBlock = main.querySelector('.today-weather');
+    if(fiveDayWeather){
+        fiveDayWeather.remove();
+    }
+    if(!weatherBlock){
+        weatherBlock = document.createElement('div');
+        weatherBlock.id = 'weather';
+        weatherBlock.classList.add('weather-block');
+        main.append(weatherBlock);
+    }
+    if(!todayWeatherBlock){
         currentWeatherBlock = document.createElement('section');
         currentWeatherBlock.classList.add('current-weather');
         hourlyWeather = document.createElement('section');
-        hourlyWeather.classList.add('hourly-weather')
-
-        main.append(weatherBlock);
+        hourlyWeather.classList.add('hourly-weather');
     }
 
     currentWeatherBlock.innerHTML = `
@@ -290,69 +468,60 @@ function showTodayWeather(data){
     `;
 
     weatherBlock.innerHTML = `
-    <div class="container">
+    <div class="container today-weather">
         ${currentWeatherBlock.outerHTML}
         ${hourlyWeather.outerHTML}
     </div>
 `;
 
     fetchAsync(`https://api.openweathermap.org/data/2.5/find?lat=${coords[0]}&lon=${coords[1]}&cnt=5&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
-    .then(data => getTodayWeather(data));
+    .then(data => checkWeather(data));
 }
 
 
-async function getTodayWeather(data){
-    let errorImg = main.querySelector('.error-img');
-    // console.log(data)
+function checkWeather(data){
+    let errorBlock = main.querySelector('.error-block');
+    let countDays = document.querySelector('.switch-day-active').getAttribute('data-countDays');
 
-    if(data.cod >= 400 && !errorImg){
-        if(main.querySelector('#weather')){
-            main.querySelector('#weather').remove()
-        }
-        errorImg = document.createElement('img');
-        errorImg.src = 'img/404_error.png';
-        errorImg.classList.add('error-img');
-        main.append(errorImg);
+    if(data.cod >= 400 && !errorBlock){
+        createError();
     }
     else if(data.cod < 400){
-        if(errorImg){
-            errorImg.remove();
+        if(errorBlock){
+            errorBlock.remove();
         };
-         if(data.count === 5){
-            showCityInCircle(data)
-         }
-         else{
-            showTodayWeather(data);
-         }
+
+        if(countDays === '1'){
+            if(data.count === 5){
+                showCityInCircle(data)
+             }
+             else{
+                showTodayWeather(data);
+             }
+        }
+        else if(countDays === '5'){
+            showFiveDayWeather(data);
+        }
     };
 };
 
 
 function getCity(e){
     e.preventDefault();
-    let countDays = document.querySelector('.switch-day-active').getAttribute('data-countDays');
     searchCityInput.value = searchCityInput.value.toLowerCase();
     searchCityInput.value = searchCityInput.value.trim();
 
-    if(countDays === '1'){
-        //Поиск по названию города
-        if(regEx.cityByName.test(searchCityInput.value) === true){
-            searchCityInput.value = searchCityInput.value.replace(/\s+/g, ' ');
-            console.log(searchCityInput.value)
-            fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
-            .then(data => getTodayWeather(data));
-        }
-        //Поиск по кординатам
-        else if(regEx.cityByName.test(searchCityInput.value) === false){
-            searchCityInput.value = searchCityInput.value.replace(/\s+/g, '')
-            coords = searchCityInput.value.split(',');
-            fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
-            .then(data => getTodayWeather(data));
-        }
+    if(regEx.cityByName.test(searchCityInput.value) === true){
+        fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
+        .then(data => checkWeather(data));
     }
-    else if(countDays === '5'){
-        console.log('five days');
-    };
+    //Поиск по кординатам
+    else if(regEx.cityByName.test(searchCityInput.value) === false){
+        searchCityInput.value = searchCityInput.value.replace(/\s+/g, '')
+        coords = searchCityInput.value.split(',');
+        fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
+        .then(data => checkWeather(data));
+    }
 };
 
 
