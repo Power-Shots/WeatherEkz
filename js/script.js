@@ -196,31 +196,37 @@ function createError(){
 }
 
 function createHourlyWeather(data, index){
-    console.log(data);
-    console.log(index)
-    index = +index
+    index = +index;
     let hourlyWeather = main.querySelector('.hourly-weather');
     let hoursContent = '';
 
     for(let i= index;i<=data.list.length; i++){
-        // console.log(i)
         if(i === index){
             hoursContent += `
                     <div class="item info">
-                        <p class="time"><span>${transormUNIX(data.list[8].dt, 'weekday')}</span></p>
+                        <p class="time"><span>${transormUNIX(data.list[i].dt, 'weekday')}</span></p>
                         <div class="hour-weather-icon"></div>
                         <p>Forecast</p>
                         <p>Temp (&#176;C)</p>
                         <p>RealFeel</p>
                         <p>Wind (km/h)</p>
                     </div>
+                    <div class="item">
+                        <p class="time">${transormUNIX(data.list[i].dt, 'add')}</p>
+                        <div class="hour-weather-icon">
+                            <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+                        </div>
+                        <p>${data.list[i].weather[0].main}</p>
+                        <p>${Math.round(data.list[i].main.temp)}&#176;</p>
+                        <p>${Math.round(data.list[i].main['feels_like'])}&#176;</p>
+                        <p>${Math.round(data.list[i].wind.speed)} ${transformDegreesToCardinalPoints(data.list[i].wind.deg)}</p>  
+                    </div>
             `;
         }
         else if(i> index){
-            // console.log(i)
             hoursContent += `
                 <div class="item">
-                    <p class="time">${transormUNIX(data.list[i].dt)}</p>
+                    <p class="time">${transormUNIX(data.list[i].dt, 'add')}</p>
                     <div class="hour-weather-icon">
                         <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
                     </div>
@@ -231,8 +237,7 @@ function createHourlyWeather(data, index){
                 </div>
             `;
         };
-        if(i === index+5){
-            console.log('dsrwsaerwsAEAEWESERASWWSRESRTERTDGFGCGCHFFGFGCRFYTTY')
+        if(i === index+4){
             hourlyWeather.innerHTML = `
                 <h2>Hourly</h2>
                 <div class="flex">
@@ -240,11 +245,9 @@ function createHourlyWeather(data, index){
                 </div>
                 `;
             return '';
-        }
+        };
     };
-
-    // console.log(fiveHours)
-}
+};
 
 function showCityInCircle(data){
     let weatherBlock = main.querySelector('#weather .container');
@@ -303,18 +306,18 @@ function showCityInCircle(data){
     weatherBlock.append(citysBlock);
 }
 
+//Проверка кликнутого элемента
 function checkTarget(e,data){
-    console.log(data)
-    if(e){
-        myTarget = e.target.closest('.item');
-        if(myTarget){
-            let index = myTarget.getAttribute('data-index');
-            // console.log(index)
-            createHourlyWeather(data, index)
+    myTarget = e.target.closest('.item');
+    if(myTarget){
+        let activeDay = document.querySelector('.active-day');
+        activeDay.classList.remove('active-day');
+        myTarget.classList.add('active-day');
+        let index = myTarget.getAttribute('data-index');
+        createHourlyWeather(data, index)
 
-        }
-    }
-}
+    };
+};
 
 function showFiveDayWeather(data){
     console.log(data);
