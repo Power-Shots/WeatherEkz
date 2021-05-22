@@ -9,16 +9,17 @@ const main = document.querySelector('main'),
 
 let coords = [];
 
-const serverLocks = {
-    today: {
-        currentForCity: 'https://api.openweathermap.org/data/2.5/weather?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
-        currentForCoords: 'https://api.openweathermap.org/data/2.5/weather?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
-    }
-}
+
+// Для напоминая запросов
+// const serverLocks = {
+//     today: {
+//         currentForCity: 'https://api.openweathermap.org/data/2.5/weather?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
+//         currentForCoords: 'https://api.openweathermap.org/data/2.5/weather?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
+//     }
+// };
 
 const regEx = {
     cityByName: /^[a-zA-Z-,' ]{3,100}$/,
-    // cityByCoords: /^-?[0-9]{1,2).[0-9]{1,},\-?\[0]$/
 }
 const dateOptions = {
     currentDate: {
@@ -49,8 +50,8 @@ const fetchAsync = async (url) => {
     }
 };
 
-function transormUNIX(date, option="add"){
-    if(option ==='add'){
+function transormUNIX(date, option="remove"){
+    if(option ==='remove'){
         return new Date(date*1000-10800000).toLocaleString('ru', dateOptions.time);
     }
     else if(option === "weekday"){
@@ -84,10 +85,10 @@ function transformDegreesToCardinalPoints(deg){
         return 'SW';
     }
     else if(deg>247 && deg<=292){
-        return 'W'
+        return 'W';
     }
     else if(deg>292 && deg<=337){
-        return 'NW'
+        return 'NW';
     }
 }
 
@@ -98,8 +99,8 @@ function getLocation(e){
         style.href = theam.href;
     }
     else{
-        main.querySelector('#dayTheam').classList.add('theam-active')
-    }
+        main.querySelector('#dayTheam').classList.add('theam-active');
+    };
 
     function success(position) {
         let latitude = position.coords.latitude;
@@ -195,16 +196,17 @@ function createError(){
     main.append(errorBlock)
 }
 
-function createHourlyWeather(data, index){
+function createHourlyWeather(data, index, countDays){
     index = +index;
     let hourlyWeather = main.querySelector('.hourly-weather');
     let hoursContent = '';
+    let weekday = countDays?  "Today": transormUNIX(data.list[index].dt, 'weekday');
 
     for(let i= index;i<=data.list.length; i++){
         if(i === index){
             hoursContent += `
                     <div class="item info">
-                        <p class="time"><span>${transormUNIX(data.list[i].dt, 'weekday')}</span></p>
+                        <p class="time"><span>${weekday}</span></p>
                         <div class="hour-weather-icon"></div>
                         <p>Forecast</p>
                         <p>Temp (&#176;C)</p>
@@ -212,7 +214,7 @@ function createHourlyWeather(data, index){
                         <p>Wind (km/h)</p>
                     </div>
                     <div class="item">
-                        <p class="time">${transormUNIX(data.list[i].dt, 'add')}</p>
+                        <p class="time">${transormUNIX(data.list[i].dt, 'remove')}</p>
                         <div class="hour-weather-icon">
                             <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
                         </div>
@@ -226,7 +228,7 @@ function createHourlyWeather(data, index){
         else if(i> index){
             hoursContent += `
                 <div class="item">
-                    <p class="time">${transormUNIX(data.list[i].dt, 'add')}</p>
+                    <p class="time">${transormUNIX(data.list[i].dt, 'remove')}</p>
                     <div class="hour-weather-icon">
                         <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
                     </div>
@@ -244,7 +246,7 @@ function createHourlyWeather(data, index){
                     ${hoursContent}
                 </div>
                 `;
-            return '';
+            return ;
         };
     };
 };
@@ -256,7 +258,7 @@ function showCityInCircle(data){
     if(!citysBlock){
         citysBlock = document.createElement('section');
         citysBlock.classList.add('citys-block');
-    }
+    };
     
     citysBlock.innerHTML = `
         <h2>Nearby places</h2>
@@ -302,6 +304,8 @@ function showCityInCircle(data){
             </div>
         </div>
     `;
+
+    // переключить город на один из ближайших
     citysBlock.addEventListener('click', changeCity);
     weatherBlock.append(citysBlock);
 }
@@ -314,7 +318,7 @@ function checkTarget(e,data){
         activeDay.classList.remove('active-day');
         myTarget.classList.add('active-day');
         let index = myTarget.getAttribute('data-index');
-        createHourlyWeather(data, index)
+        createHourlyWeather(data, index);
 
     };
 };
@@ -435,47 +439,20 @@ function showTodayWeather(data){
                 <p></p>
             </div>
             <div class="item">
-                <p>Sunrise: ${transormUNIX(data.city.sunrise,'no-add')}</p>
-                <p>Sunset: ${transormUNIX(data.city.sunset,'no-add')}</p>
+                <p>Sunrise: ${transormUNIX(data.city.sunrise,'no-remove')}</p>
+                <p>Sunset: ${transormUNIX(data.city.sunset,'no-remove')}</p>
             </div>
-        </div>
-    `;
-
-    let fiveHours = data.list.slice(0,5);
-    let hourWeather = fiveHours.map(item =>`
-        <div class="item">
-            <p class="time">${transormUNIX(item.dt)}</p>
-            <div class="hour-weather-icon">
-                <img src="http://openweathermap.org/img/wn/${item.weather[0].icon}.png">
-            </div>
-            <p>${item.weather[0].main}</p>
-            <p>${Math.round(item.main.temp)}&#176;</p>
-            <p>${Math.round(item.main['feels_like'])}&#176;</p>
-            <p>${Math.round(item.wind.speed)} ${transformDegreesToCardinalPoints(item.wind.deg)}</p>  
-        </div>
-    `);
-
-    hourlyWeather.innerHTML = `
-        <h2>Hourly</h2>
-        <div class="flex">
-            <div class="item info">
-                <p class="time"><span>Today</span></p>
-                <div class="hour-weather-icon"></div>
-                <p>Forecast</p>
-                <p>Temp (&#176;C)</p>
-                <p>RealFeel</p>
-                <p>Wind (km/h)</p>
-            </div>
-            ${hourWeather.join('')}
         </div>
     `;
 
     weatherBlock.innerHTML = `
-    <div class="container today-weather">
-        ${currentWeatherBlock.outerHTML}
-        ${hourlyWeather.outerHTML}
-    </div>
-`;
+        <div class="container today-weather">
+            ${currentWeatherBlock.outerHTML}
+            ${hourlyWeather.outerHTML}
+        </div>
+    `;
+
+    createHourlyWeather(data,0,'Today');
 
     fetchAsync(`https://api.openweathermap.org/data/2.5/find?lat=${coords[0]}&lon=${coords[1]}&cnt=5&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
     .then(data => checkWeather(data));
@@ -496,7 +473,7 @@ function checkWeather(data){
 
         if(countDays === '1'){
             if(data.count === 5){
-                showCityInCircle(data)
+                showCityInCircle(data);
              }
              else{
                 showTodayWeather(data);
@@ -514,6 +491,7 @@ function getCity(e){
     searchCityInput.value = searchCityInput.value.toLowerCase();
     searchCityInput.value = searchCityInput.value.trim();
 
+    //Поиск по названию города
     if(regEx.cityByName.test(searchCityInput.value) === true){
         fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
         .then(data => checkWeather(data));
