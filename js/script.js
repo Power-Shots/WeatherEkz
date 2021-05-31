@@ -1,4 +1,4 @@
-const style = document.querySelector('#style');
+const cssStyle = document.querySelector('#style');
 
 const searchCityInput = document.querySelector('#searchCity'),
       searchCityBtn = document.querySelector('#searchBtn');
@@ -19,7 +19,7 @@ let coords = [];
 // };
 
 const regEx = {
-    cityByName: /^[a-zA-Z-,' ]{3,100}$/,
+    cityByName: /^[a-zA-Zá-źÁ-Ź-,' ]{3,100}$/,
 }
 const dateOptions = {
     currentDate: {
@@ -54,13 +54,13 @@ function transormUNIX(date, option="remove"){
     if(option ==='remove'){
         return new Date(date*1000-10800000).toLocaleString('ru', dateOptions.time);
     }
-    else if(option === "weekday"){
+    if(option === "weekday"){
         return new Date(date*1000).toLocaleString('en', dateOptions.dayOfWeek);
     }
-    else if(option === "month-day"){
+    if(option === "month-day"){
         return new Date(date*1000).toLocaleString('en', dateOptions.monthDay);
     }
-    else{
+    if(option !== "remove"){
         return new Date(date*1000).toLocaleString('ru', dateOptions.time);
     }
 }
@@ -69,25 +69,25 @@ function transformDegreesToCardinalPoints(deg){
     if(deg>337 || deg<=22){
         return 'N';
     }
-    else if(deg>22 && deg<=67){
+    if(deg>22 && deg<=67){
         return 'NE';
     }
-    else if(deg>67 && deg<=112){
+    if(deg>67 && deg<=112){
         return 'E';
     }
-    else if(deg>112 && deg<=157){
+    if(deg>112 && deg<=157){
         return 'SE';
     }
-    else if(deg>157 && deg<=202){
+    if(deg>157 && deg<=202){
         return 'S';
     }
-    else if(deg>202 && deg<=247){
+    if(deg>202 && deg<=247){
         return 'SW';
     }
-    else if(deg>247 && deg<=292){
+    if(deg>247 && deg<=292){
         return 'W';
     }
-    else if(deg>292 && deg<=337){
+    if(deg>292 && deg<=337){
         return 'NW';
     }
 }
@@ -96,7 +96,7 @@ function getLocation(e){
     let theam = JSON.parse(localStorage.getItem('theam'));
     if(theam){
         main.querySelector(`#${theam.selectBtn}`).classList.add('theam-active');
-        style.href = theam.href;
+        cssStyle.href = theam.href;
     }
     else{
         main.querySelector('#dayTheam').classList.add('theam-active');
@@ -105,8 +105,6 @@ function getLocation(e){
     function success(position) {
         let latitude = position.coords.latitude;
         let longitude = position.coords.longitude;
-        let altitude = position.coords.altitude;
-        let speed = position.coords.speed;
         if(latitude && longitude){
             searchCityInput.value = `${latitude}, ${longitude}`;
             getCity(e);
@@ -147,16 +145,14 @@ function switchTheam(e){
         }
 
         myTarget.classList.add('theam-active');
+        let urlCss = 'css/styleDark.css'
         if(theamValue === 'day'){
-            style.href = 'css/style.css';
-            dataTheam.href = 'css/style.css';
-            localStorage.setItem('theam', JSON.stringify(dataTheam));
+           urlCss = 'css/style.css'
         }
-        else {
-            style.href = 'css/styleDark.css';
-            dataTheam.href = 'css/styleDark.css';
-            localStorage.setItem('theam', JSON.stringify(dataTheam));
-        }
+        
+        cssStyle.href = urlCss;
+        dataTheam.href = urlCss;
+        localStorage.setItem('theam', JSON.stringify(dataTheam));
     }
 }
 
@@ -203,6 +199,18 @@ function createHourlyWeather(data, index, countDays){
     let weekday = countDays?  "Today": transormUNIX(data.list[index].dt, 'weekday');
 
     for(let i= index;i<=data.list.length; i++){
+        let strItem = `
+            <div class="item">
+                <p class="time">${transormUNIX(data.list[i].dt, 'remove')}</p>
+                <div class="hour-weather-icon">
+                    <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+                </div>
+                <p>${data.list[i].weather[0].main}</p>
+                <p>${Math.round(data.list[i].main.temp)}&#176;</p>
+                <p>${Math.round(data.list[i].main['feels_like'])}&#176;</p>
+                <p>${Math.round(data.list[i].wind.speed)} ${transformDegreesToCardinalPoints(data.list[i].wind.deg)}</p>  
+            </div>
+        `
         if(i === index){
             hoursContent += `
                     <div class="item info">
@@ -213,31 +221,11 @@ function createHourlyWeather(data, index, countDays){
                         <p>RealFeel</p>
                         <p>Wind (km/h)</p>
                     </div>
-                    <div class="item">
-                        <p class="time">${transormUNIX(data.list[i].dt, 'remove')}</p>
-                        <div class="hour-weather-icon">
-                            <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
-                        </div>
-                        <p>${data.list[i].weather[0].main}</p>
-                        <p>${Math.round(data.list[i].main.temp)}&#176;</p>
-                        <p>${Math.round(data.list[i].main['feels_like'])}&#176;</p>
-                        <p>${Math.round(data.list[i].wind.speed)} ${transformDegreesToCardinalPoints(data.list[i].wind.deg)}</p>  
-                    </div>
+                    ${strItem}
             `;
         }
         else if(i> index){
-            hoursContent += `
-                <div class="item">
-                    <p class="time">${transormUNIX(data.list[i].dt, 'remove')}</p>
-                    <div class="hour-weather-icon">
-                        <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
-                    </div>
-                    <p>${data.list[i].weather[0].main}</p>
-                    <p>${Math.round(data.list[i].main.temp)}&#176;</p>
-                    <p>${Math.round(data.list[i].main['feels_like'])}&#176;</p>
-                    <p>${Math.round(data.list[i].wind.speed)} ${transformDegreesToCardinalPoints(data.list[i].wind.deg)}</p>  
-                </div>
-            `;
+            hoursContent += strItem;
         };
         if(i === index+4){
             hourlyWeather.innerHTML = `
@@ -254,56 +242,36 @@ function createHourlyWeather(data, index, countDays){
 function showCityInCircle(data){
     let weatherBlock = main.querySelector('#weather .container');
     let citysBlock = main.querySelector('.citys-block');
+    let citysBlockContent = '';
 
     if(!citysBlock){
         citysBlock = document.createElement('section');
         citysBlock.classList.add('citys-block');
     };
     
-    citysBlock.innerHTML = `
-        <h2>Nearby places</h2>
-        <div class="grid">
-            <div class="item" data-cityTitle="${data.list[1].name}">
-                <div class="city-title">${data.list[1].name}</div>
-                <div class="city-weather">
-                    <div>
-                        <img src="http://openweathermap.org/img/wn/${data.list[1].weather[0].icon}.png">
-                    </div>
-                    <p>${Math.round(data.list[1].main.temp)}&#176;C</p>
-                </div>
-            </div>
 
-            <div class="item" data-cityTitle="${data.list[2].name}">
-                <div class="city-title">${data.list[2].name}</div>
+    for(let i=1; i<=data.list.length;i++){
+        citysBlockContent += `
+            <div class="item" data-cityTitle="${data.list[i].name}">
+                <div class="city-title">${data.list[i].name}</div>
                 <div class="city-weather">
                     <div>
-                        <img src="http://openweathermap.org/img/wn/${data.list[2].weather[0].icon}.png">
+                        <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
                     </div>
-                    <p>${Math.round(data.list[2].main.temp)}&#176;C</p>
+                    <p>${Math.round(data.list[i].main.temp)}&#176;C</p>
                 </div>
             </div>
-
-            <div class="item" data-cityTitle="${data.list[3].name}">
-                <div class="city-title">${data.list[3].name}</div>
-                <div class="city-weather">
-                    <div>
-                        <img src="http://openweathermap.org/img/wn/${data.list[3].weather[0].icon}.png">
-                    </div>
-                    <p>${Math.round(data.list[3].main.temp)}&#176;C</p>
+        `;
+        if(i===4){
+            citysBlock.innerHTML = `
+                <h2>Nearby places</h2>
+                <div class="grid">
+                    ${citysBlockContent}
                 </div>
-            </div>
-
-            <div class="item" data-cityTitle="${data.list[4].name}">
-                <div class="city-title">${data.list[4].name}</div>
-                <div class="city-weather">
-                    <div>
-                        <img src="http://openweathermap.org/img/wn/${data.list[4].weather[0].icon}.png">
-                    </div>
-                    <p>${Math.round(data.list[4].main.temp)}&#176;C</p>
-                </div>
-            </div>
-        </div>
-    `;
+            `;
+            break;
+        }
+    }
 
     // переключить город на один из ближайших
     citysBlock.addEventListener('click', changeCity);
@@ -353,37 +321,20 @@ function showFiveDayWeather(data){
 
     let weekdayContent = '';
     for(let i=0; i<data.list.length; i+=8){
-        if(i==0){
-            weekdayContent += `
-            <div class="item active-day" data-index="${i}">
-                <p class="weekday">${transormUNIX(data.list[i].dt, 'weekday')}</p>
-                <p>${transormUNIX(data.list[i].dt, 'month-day')}</p>
-                <div class="icon-block">
-                    <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
-                </div>
-                <p class="temp">${Math.round(data.list[i].main.temp)}&#176;C</p>
-                <p class="description">${data.list[i].weather[0].description}</p>
-            </div>`;
-        }
-        else{
-            weekdayContent += `
-            <div class="item" data-index="${i}">
-                <p class="weekday">${transormUNIX(data.list[i].dt, 'weekday')}</p>
-                <p>${transormUNIX(data.list[i].dt, 'month-day')}</p>
-                <div class="icon-block">
-                    <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
-                </div>
-                <p class="temp">${Math.round(data.list[i].main.temp)}&#176;C</p>
-                <p class="description">${data.list[i].weather[0].description}</p>
-            </div>`;
-        }
+        let dayItem = i===0 ? 'item active-day': 'item';
+
+        weekdayContent += `
+        <div class="${dayItem}" data-index="${i}">
+            <p class="weekday">${transormUNIX(data.list[i].dt, 'weekday')}</p>
+            <p>${transormUNIX(data.list[i].dt, 'month-day')}</p>
+            <div class="icon-block">
+                <img src="http://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png">
+            </div>
+            <p class="temp">${Math.round(data.list[i].main.temp)}&#176;C</p>
+            <p class="description">${data.list[i].weather[0].description}</p>
+        </div>`;
     };
     weekdayBlock.innerHTML = weekdayContent;
-    
-
-
-
-console.log(hourlyWeather)
 
 
     weatherBlock.innerHTML = `
@@ -408,6 +359,8 @@ function showTodayWeather(data){
     let currentWeatherBlock = main.querySelector('.current-weather');
     let hourlyWeather = main.querySelector('.hourly-weather');
     let todayDate = new Date().toLocaleDateString('ru', dateOptions.currentDate);
+    let duration = data.city.sunset - data.city.sunrise;
+    console.log();
     let fiveDayWeather = main.querySelector('.five-day-weather');
     let todayWeatherBlock = main.querySelector('.today-weather');
     if(fiveDayWeather){
@@ -441,6 +394,7 @@ function showTodayWeather(data){
             <div class="item">
                 <p>Sunrise: ${transormUNIX(data.city.sunrise,'no-remove')}</p>
                 <p>Sunset: ${transormUNIX(data.city.sunset,'no-remove')}</p>
+                <p>Duration: ${transormUNIX(duration)}</p>
             </div>
         </div>
     `;
@@ -492,12 +446,12 @@ function getCity(e){
     searchCityInput.value = searchCityInput.value.trim();
 
     //Поиск по названию города
-    if(regEx.cityByName.test(searchCityInput.value) === true){
+    if(regEx.cityByName.test(searchCityInput.value)){
         fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
         .then(data => checkWeather(data));
     }
     //Поиск по кординатам
-    else if(regEx.cityByName.test(searchCityInput.value) === false){
+    else if(!regEx.cityByName.test(searchCityInput.value)){
         searchCityInput.value = searchCityInput.value.replace(/\s+/g, '')
         coords = searchCityInput.value.split(',');
         fetchAsync(`https://api.openweathermap.org/data/2.5/forecast?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7`)
@@ -506,24 +460,25 @@ function getCity(e){
 };
 
 
+function start(){
+    // Поиск города при нажатии на кнопку поиска
+    searchCityBtn.addEventListener('click', getCity);
 
 
-
-// Поиск города при нажатии на кнопку поиска
-searchCityBtn.addEventListener('click', getCity);
-
-
-//Поиск города при нажатии на клавиатуру
-searchCityInput.addEventListener('keydown', getPressKey);
+    //Поиск города при нажатии на клавиатуру
+    searchCityInput.addEventListener('keydown', getPressKey);
 
 
-//Переключение количества дней
-switchBlock.addEventListener('click', switchCountDay);
+    //Переключение количества дней
+    switchBlock.addEventListener('click', switchCountDay);
 
-switchTheamBlock.addEventListener('click', switchTheam);
+    switchTheamBlock.addEventListener('click', switchTheam);
 
-//Определить место положение пользователя при запуске
-window.addEventListener('load', getLocation);
+    //Определить место положение пользователя при запуске
+    window.addEventListener('load', getLocation);
+}
+
+start()
 
 
 
