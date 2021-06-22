@@ -1,3 +1,10 @@
+/*
+    28.06.2001
+    Alexsey Zhidkov
+    Ekz Weather
+    Function
+*/
+
 const cssStyle = document.querySelector('#style');
 
 const searchCityInput = document.querySelector('#searchCity'),
@@ -8,15 +15,6 @@ const main = document.querySelector('main'),
       switchTheamBlock = main.querySelector('#switchTheam');
 
 let coords = [];
-
-
-// Для напоминая запросов
-// const serverLocks = {
-//     today: {
-//         currentForCity: 'https://api.openweathermap.org/data/2.5/weather?q=${searchCityInput.value}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
-//         currentForCoords: 'https://api.openweathermap.org/data/2.5/weather?lat=${coords[0]}&lon=${coords[1]}&lang=en&units=metric&appid=2e45c48feaeca4beaf24076750d9e0c7',
-//     }
-// };
 
 const regEx = {
     cityByName: /^[a-zA-Zá-źÁ-Ź-,' ]{3,100}$/,
@@ -479,10 +477,3 @@ function start(){
 }
 
 start()
-
-
-
-
-
-// const myUrlToday = `https://api.openweathermap.org/data/2.5/weather?q=${searchCityInput.value}&lang=ru&appid=2e45c48feaeca4beaf24076750d9e0c7`;
-
