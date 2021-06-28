@@ -1,3 +1,56 @@
+class Theam{
+    constructor(cssStyle, switchTheamBlock){
+        this.cssStyle = document.querySelector(cssStyle);
+        this.switchTheamBlock = document.querySelector(switchTheamBlock);
+        this.start();
+    }
+
+    start(){
+        this.getTheam();
+        this.switchTheamBlock.addEventListener('click', this.switchTheam.bind(this));
+    }
+
+    getTheam(){
+        let theam = JSON.parse(localStorage.getItem('theam'));
+        if(theam){
+            document.querySelector(`#${theam.selectBtn}`).classList.add('theam-active');
+            this.cssStyle.href = theam.href;
+        }
+        else{
+            document.querySelector('#dayTheam').classList.add('theam-active');
+        };
+    }
+
+    switchTheam(e){
+        e.preventDefault();
+        let myTarget = e.target.closest('.theam');
+        let activeTheam = document.querySelector('.theam-active');
+        if (myTarget){
+            let theamValue = myTarget.getAttribute('data-theam');
+            let dataTheam = {
+                selectBtn: myTarget.id,
+            }
+            if(activeTheam){
+                activeTheam.classList.remove('theam-active');
+            }
+
+            myTarget.classList.add('theam-active');
+            let urlCss = 'css/styleDark.css'
+            if(theamValue === 'day'){
+                urlCss = 'css/style.css'
+            }
+            
+            this.cssStyle.href = urlCss;
+            dataTheam.href = urlCss;
+            this.toLocaleStorage(dataTheam);
+        }
+    }
+
+    toLocaleStorage(obj){
+        localStorage.setItem('theam', JSON.stringify(obj));
+    }
+}
+
 class ServerLock{
     constructor(){
     }
@@ -10,14 +63,12 @@ class ServerLock{
 }
 
 class Weather{
-    constructor(block, searchCityInput, searchCityBtn, switchDayBlock, switchTheamBlock, cssStyle){
+    constructor(block, searchCityInput, searchCityBtn, switchDayBlock){
         this.api = new ServerLock();
         this.block = document.querySelector(block);
         this.searchCityInput = document.querySelector(searchCityInput);
         this.searchCityBtn = document.querySelector(searchCityBtn);
         this.switchDayBlock = document.querySelector(switchDayBlock);
-        this.switchTheamBlock = document.querySelector(switchTheamBlock);
-        this.cssStyle = document.querySelector(cssStyle);
         this.coords = [];
         this.dateOptions = {
             currentDate: {
@@ -45,7 +96,6 @@ class Weather{
         this.searchCityBtn.addEventListener('click', this.getCity.bind(this));
         this.searchCityInput.addEventListener('keydown', this.getPressKey.bind(this));
         this.switchDayBlock.addEventListener('click', this.switchCountDay.bind(this));
-        this.switchTheamBlock.addEventListener('click', this.switchTheam.bind(this));
     };
 
     getPressKey(e){
@@ -65,41 +115,7 @@ class Weather{
         };
     };
 
-    switchTheam(e){
-        e.preventDefault();
-        let myTarget = e.target.closest('.theam');
-        let activeTheam = document.querySelector('.theam-active');
-        if (myTarget){
-            let theamValue = myTarget.getAttribute('data-theam');
-            let dataTheam = {
-                selectBtn: myTarget.id,
-            }
-            if(activeTheam){
-                activeTheam.classList.remove('theam-active');
-            }
-
-            myTarget.classList.add('theam-active');
-            let urlCss = 'css/styleDark.css'
-            if(theamValue === 'day'){
-            urlCss = 'css/style.css'
-            }
-            
-            this.cssStyle.href = urlCss;
-            dataTheam.href = urlCss;
-            localStorage.setItem('theam', JSON.stringify(dataTheam));
-        }
-    };
-
     getLocation(e){
-        let theam = JSON.parse(localStorage.getItem('theam'));
-        if(theam){
-            document.querySelector(`#${theam.selectBtn}`).classList.add('theam-active');
-            this.cssStyle.href = theam.href;
-        }
-        else{
-            document.querySelector('#dayTheam').classList.add('theam-active');
-        };
-
         function success(position) {
             let latitude = position.coords.latitude;
             let longitude = position.coords.longitude;
@@ -110,8 +126,8 @@ class Weather{
         };
         
         function error(obj) {
-            searchCityInput.value = `Kiev`;
-            this.getCity(e)
+            this.searchCityInput.value = `Kiev`;
+            this.getCity(e);
         };
 
         let geo = navigator.geolocation.getCurrentPosition(success.bind(this), error.bind(this));
@@ -166,7 +182,6 @@ class Weather{
     };
 
     showFiveDayWeather(data){
-        console.log(data);
         this.searchCityInput.value = `${data.city.name}, ${data.city.country}`;
         let weatherBlock = this.block.querySelector('#weather');
         let weekdayBlock = this.block.querySelector('.weekday-block');
@@ -405,8 +420,7 @@ class Weather{
             </div>
             <p><span>${this.searchCityInput.value}</span> not found</p>
         </div>
-        `
-        console.log(errorBlock)
+        `;
         this.block.append(errorBlock)
     };
 
@@ -455,11 +469,9 @@ class Weather{
 
 
 
-
+let theam1 = new Theam('#style', '#switchTheam');
 let weather1 = new Weather('#content',
                            '#searchCity',
                            '#searchBtn',
-                           '#switchBlock',
-                           '#switchTheam',
-                           '#style');
+                           '#switchBlock');
 
