@@ -159,8 +159,15 @@ class Weather{
         let errorBlock = document.querySelector('.error-block');
         let countDays = document.querySelector('.switch-day-active').getAttribute('data-countDays');
 
-        if(data.cod >= 400 && !errorBlock){
-            this.createError();
+        if(data.cod >= 400){
+            if(!errorBlock){
+                this.createError();
+            }
+            else {
+                let unknownСity = document.querySelector('#unknownСity')
+                unknownСity.innerHTML = this.searchCityInput.value;
+            }
+            
         }
         else if(data.cod < 400){
             if(errorBlock){
@@ -418,7 +425,7 @@ class Weather{
             <div>
                 ${errorImg.outerHTML}
             </div>
-            <p><span>${this.searchCityInput.value}</span> not found</p>
+            <p><span id="unknownСity">${this.searchCityInput.value}</span> not found</p>
         </div>
         `;
         this.block.append(errorBlock)
