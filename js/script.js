@@ -1,3 +1,13 @@
+/*
+    v 1.5
+    Autor: Alexey Zhidkov.
+    date: 28.06.2021
+
+    Weather Ekzamen
+*/
+
+'use strict';
+
 class Theam{
     constructor(cssStyle, switchTheamBlock){
         this.cssStyle = document.querySelector(cssStyle);
@@ -137,7 +147,7 @@ class Weather{
         if(e){e.preventDefault();}
 
         let regEx = {
-            cityByName: /^[a-zA-Zá-źÁ-Ź-,' ]{3,100}$/,
+            cityByName: /^[a-zA-Zа-яА-Яá-źÁ-Ź-,' ]{3,100}$/,
         };
         this.searchCityInput.value = this.searchCityInput.value.toLowerCase();
         this.searchCityInput.value = this.searchCityInput.value.trim();
@@ -154,8 +164,6 @@ class Weather{
     };
 
     checkWeather(data){
-        // console.log(this)
-        // console.log(data)
         let errorBlock = document.querySelector('.error-block');
         let countDays = document.querySelector('.switch-day-active').getAttribute('data-countDays');
 
