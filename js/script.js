@@ -2,8 +2,6 @@
     v 1.5
     Autor: Alexey Zhidkov.
     date: 28.06.2021
-
-    Weather Ekzamen
 */
 
 'use strict';
