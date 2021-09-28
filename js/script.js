@@ -1,7 +1,6 @@
 /*
     28.06.2001
     Alexsey Zhidkov
-    Ekz Weather
     Function
 */
 
