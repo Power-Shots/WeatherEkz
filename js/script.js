@@ -282,7 +282,7 @@ class Weather{
         }
 
         currentWeatherBlock.innerHTML = `
-            <h2 class="today-date">Погода сейчас <span>${todayDate}</span></h2>
+            <h2 class="today-date">Current weather <span>${todayDate}</span></h2>
             <div class="flex">
                 <div class="item">
                     <img src="http://openweathermap.org/img/wn/${data.list['0'].weather[0].icon}.png" class="weather-icon">
